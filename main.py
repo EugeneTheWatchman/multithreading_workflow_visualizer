@@ -169,7 +169,7 @@ class Plotter:
 
 if __name__ == "__main__":
     logReader = LogReader()
-    plotter = Plotter(logReader, 50)
+    plotter = Plotter(logReader, 5)
     plotter.plot()
 
 
