@@ -1,6 +1,6 @@
 from matplotlib import pyplot as plt
 import numpy as np
-import logreader
+from logreader import LogReader
 
 class DiagramPlotter:
     def __init__(self, logReader: LogReader, max_num_of_piles_of_records_per_file = 4, numeber_of_records_to_skip = 0):
@@ -12,16 +12,15 @@ class DiagramPlotter:
         max = 0
         min = np.inf
         ticks = []
-        while self.logReader.get_number_of_records_given_by_each_file() \
+        while self.logReader.get_max_number_of_records_given_by_each_file() \
             < self.max_num_of_piles_of_records_per_file:
             log_records = self.logReader.get_next_set_of_numbers()
             if len(log_records) == 0:
                 break
 
             for offset, records in log_records.items():
-                SYNCpoints = []
-                ENDpoints = []
-                prev_red_square = 0
+                lines = {}
+                # prev_red_square = 0
                 for mark, time in records:
                     time = int(time)
                     ticks.append(time)
@@ -29,25 +28,26 @@ class DiagramPlotter:
                     if max < time: max = time
 
                     marker, color = self.choose_color_and_marker(mark)
-                    plt.scatter(offset, time, color=color, marker=marker)
-                    if 'SYNC' in mark:
-                        SYNCpoints.append(time)
-                    if 'END' in mark:
-                        ENDpoints.append(time)
-                    if 'START WORK' in mark:
-                        prev_red_square = time
-                    elif 'END SYNC' in mark:
-                        diff = prev_red_square - time
-                        if diff > 0:
-                            print(time)
-                            total_blue_parallel_work += diff
-                plt.plot([offset] * len(SYNCpoints), SYNCpoints, 'r-', linewidth=1)
-                plt.plot([offset] * len(ENDpoints), ENDpoints, 'b-', linewidth=1.5)
+                    plt.scatter(offset, time, color=color, marker=marker, markersize=10)
+
+                    stage, proces_name = mark.split(' ')
+                    lines.get(proces_name, []).append(time)
+                    # calculating gain from multithreading
+                    # if 'START WORK' in mark:
+                    #     prev_red_square = time
+                    # elif 'END SYNC' in mark:
+                    #     diff = prev_red_square - time
+                    #     if diff > 0:
+                    #         print(time)
+                    #         total_blue_parallel_work += diff
+                for proces_name in lines.keys():
+                    points =  lines[proces_name]
+                    plt.plot([offset] * len(points), points, 'r-', linewidth=2)
 
                 plt.xlim([-50, 50])
 
-        print(f'{total_blue_parallel_work=}')
-        print(f'{sum(self.logReader.number_of_records_given_by_each_file)=}')
+        # print(f'{total_blue_parallel_work=}')
+        # print(f'{sum(self.logReader.number_of_records_given_by_each_file)=}')
 
         self.logReader.close_files()
         plt.yticks(list(set(ticks)))
