@@ -27,8 +27,8 @@ class DiagramPlotter:
                     if min > time: min = time
                     if max < time: max = time
 
-                    marker, color = self.choose_color_and_marker(mark)
-                    plt.scatter(offset, time, color=color, marker=marker, markersize=10)
+                    marker, color, size = self.choose_color_and_marker(mark)
+                    plt.scatter(offset, time, color=color, marker=marker, s=size)
 
                     stage, proces_name = mark.split(' ')
                     lines.get(proces_name, []).append(time)
@@ -60,6 +60,7 @@ class DiagramPlotter:
         max = 255
         n = 5
         color = 'w'
+        size = 40
 
         if mark == 'BEFORE RS':
             n = 4
@@ -70,6 +71,7 @@ class DiagramPlotter:
             n = 2
         elif mark == 'START WORK':
             color ='r'
+            size = 60
             n = 1
         elif mark == 'END WORK':
             n = 0
@@ -77,4 +79,4 @@ class DiagramPlotter:
         if color == 'w':
             color = '#' + hex(int(max * n / 5))[2:] * 3
 
-        return marker, color
+        return marker, color, size
