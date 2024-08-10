@@ -57,7 +57,7 @@ class LogReader:
         return enought_lenght_indexes
 
     def get_next_set_of_numbers(self) -> dict:
-        output = {}
+        output: {str: [(str, int),]} = {}
         for _ in range(100):  # try counts
             enought_lenght_indexes = self.__is_set_complete()
             self.__read_next_line_by_time()
@@ -67,7 +67,7 @@ class LogReader:
             return output
 
         for index in enought_lenght_indexes:
-            output[index] = self.logs_records_buffer[index][:5]
+            output[index+1] = self.logs_records_buffer[index][:5]
             self.logs_records_buffer[index][:5] = []
             self.number_of_records_given_by_each_file[index] += 1
         return output
