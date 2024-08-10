@@ -3,7 +3,7 @@ import numpy as np
 from logreader import LogReader
 
 class DiagramPlotter:
-    def __init__(self, logReader: LogReader, process_color_maper, max_num_of_piles_of_records_per_file = 4, numeber_of_records_to_skip = 0):
+    def __init__(self, logReader: LogReader, process_color_maper, max_num_of_piles_of_records_per_file = 4):
         self.process_color_maper = process_color_maper
 
         self.max_num_of_piles_of_records_per_file = max_num_of_piles_of_records_per_file
@@ -25,8 +25,6 @@ class DiagramPlotter:
 
         plt.show()
 
-        # self.logReader.close_files()
-
     def __set_axis_paramets(self):
         self.axes.set_ylim(self.minmax)
         self.axes.set_yticks(self.ticks)
@@ -37,8 +35,8 @@ class DiagramPlotter:
         # просто очищает оси
         # нужно чтобы перестал лагать график
         # по-хорошему, нужно бы сохранять последние несколько семплов точек, чтобы их перерисовывать, но я даже не уверен, что этой кнопкой часто будут пользоваться
-        button_axes = self.figure.add_axes([0.75, 0.9, 0.2, 0.05])
-        self.button = plt.Button(button_axes, 'Clear axes', )
+        button_axes = self.figure.add_axes((0.75, 0.9, 0.2, 0.05))
+        self.button = plt.Button(button_axes, 'Clear axes', color='#FFFFFF', hovercolor='#FFDDAA')
         def on_clicked(event):
             self.axes.clear()
             self.__set_axis_paramets()
@@ -50,17 +48,13 @@ class DiagramPlotter:
     def __draw_slider(self):
         min, max = self.minmax
 
-        # slider_axes = self.axes.inset_axes([1.1, 0, 0.25, 1])
-        slider_axes = self.figure.add_axes([0.8, 0.05, 0.1, 0.8])
+        slider_axes = self.figure.add_axes((0.8, 0.05, 0.1, 0.8))
         self.slider = plt.Slider(slider_axes, 'прокрутка времени', valmin=min, valmax=max,
                             valinit=0, valstep=1, orientation='vertical',
                             closedmax=True, closedmin=True)
 
-        # self.__prev_slider_value = 0
-
         def on_update(slider_value: float|int):
             self.__prev_slider_value = slider_value
-            # self.axes.clear()
 
             upper_lim = self.slider.valmax + slider_value - self.slider.valmin
             self.axes.set_ylim([slider_value, upper_lim])
@@ -74,18 +68,15 @@ class DiagramPlotter:
                 self.slider.valmax += self.scroll_speed
                 self.slider.valmin += self.scroll_speed
                 self.slider.ax.set_ylim(self.slider.valmin, self.slider.valmax)
-                self.slider.set_val(slider_value)
             elif slider_value == self.slider.valmin:
                 self.slider.valmax -= self.scroll_speed
                 self.slider.valmin -= self.scroll_speed
                 self.slider.ax.set_ylim(self.slider.valmin, self.slider.valmax)
-                self.slider.set_val(slider_value)
 
             # self.figure.canvas.draw_idle()
             self.figure.canvas.flush_events()
 
         self.slider.on_changed(on_update)
-        # slider.valmax = 200
 
     def __draw_points_and_lines(self):
         min, max = self.minmax

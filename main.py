@@ -12,4 +12,6 @@ if __name__ == "__main__":
     plotter = DiagramPlotter(logReader, process_color_maper, 5)
     plotter.draw_all()
 
+    logReader.close_files()
+
 
